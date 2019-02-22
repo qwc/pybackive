@@ -1,0 +1,77 @@
+### backive config schema
+#
+#
+
+
+definitions:
+    device_section:
+        type: object
+        patternProperties:
+            "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$":
+                type: object
+                properties:
+                    name:
+                        type: string
+                    mountname:
+                        type: string
+                required:
+                    - mountname
+                additionalProperties: false
+    backup_section:
+        type: object
+        patternProperties:
+            "^[a-zA-Z0-9_-]+$":
+                type: object
+                properties:
+                    user:
+                        type: string
+                    from:
+                        type: string
+                    from_remote:
+                        type: object
+                        properties:
+                            user:
+                                type: string
+                            password:
+                                type: string
+                            ssh_key_path:
+                                type: string
+                    to:
+                        type: string
+                    target_device:
+                        type: string
+                    frequency:
+                        type: string
+                    scripts:
+                        type: array
+                        items:
+                            type: object
+                            properties:
+                                target:
+                                    enum: [ "local", "remote" ]
+                                script:
+                                    type: string
+                            additionalProperties: false
+                    tool:
+                        type: object
+                required:
+                    - from
+                    - to
+                    - target_device
+                additionalProperties: false
+    preferences_section:
+        type: object
+        properties:
+            mount_root:
+                type: string
+                pattern: "^(/[^/]+)+$"
+        additionalProperties: false
+
+type: object
+properties:
+    devices:
+        "$ref": "#:/definitions/device_section"
+    backups:
+        "$ref": "#:/definitions/backup_section"
+    preferences:
+        "$ref": "#:/definitions/preferences_section"

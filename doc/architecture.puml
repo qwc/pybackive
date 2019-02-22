@@ -1,0 +1,59 @@
+@startuml "Overall architecture"
+
+actor User
+control udev
+agent backive_udev
+interface unix_socket
+agent backive_service
+file config
+storage HDD_in_dockingstation
+
+User --> HDD_in_dockingstation : 1. plugs in
+
+udev <--> HDD_in_dockingstation : 2. recognizes hardware change
+
+udev --> backive_udev : 3. calls with data of the HDD
+
+backive_udev --> unix_socket : 4. delivers data to interface
+
+backive_service <--> unix_socket : listens on and awaits data
+
+backive_service <-- config
+
+backive_service ==> HDD_in_dockingstation : 5. writes data like configured in config
+
+@enduml
+
+@startuml "Class architecture"
+
+class backive_udev << (S,#FF0000) Script >>
+
+class backive_service << (S,#FF0000) Script >>
+
+class Service
+note left 
+Runs known Backup instances based
+on data provided by the EventInterface
+end note
+
+class EventInterface
+
+class Config
+
+class Backup
+
+class Device
+
+class Tool
+
+backive_service --> Service : provides startup to
+EventInterface --* Service
+Config --* Service
+Backup --* Service
+Device --* Backup
+Tool --* Backup
+
+Config ..> Backup : generates Backup objects
+backive_udev ..> EventInterface : sends data through unix socket
+
+@enduml
