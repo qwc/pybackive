@@ -3,3 +3,13 @@
 """
 Callable script for udev rules.
 """
+import socket
+import sys
+
+unix_socket = "/tmp/backive/backive.sock"
+
+sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+sock.connect(unix_socket)
+if len(sys.argv) > 1:
+    sock.send(sys.argv[1].encode())
+sock.close()

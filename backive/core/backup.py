@@ -2,11 +2,9 @@ import os
 
 
 class Backup:
-
-    config = {}
-
     def __init__(self, name, cfg=None):
-        pass
+        self.name = name
+        self.config = cfg
 
     def run(self):
         pass

@@ -3,3 +3,15 @@
 """
 Service startup script.
 """
+
+class Backive:
+    def __init__(self):
+        pass
+
+    def serve(self):
+        pass
+
+
+if __name__ == "__main__":
+    backive = Backive()
+    backive.serve()
