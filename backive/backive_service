@@ -3,10 +3,13 @@
 """
 Service startup script.
 """
+from backive.core.events import EventInterface
+
 
 class Backive:
     def __init__(self):
-        pass
+        self._config = None
+        self._events = None
 
     def serve(self):
         pass

@@ -6,7 +6,7 @@ import os
 import pwd
 
 
-logging.basicConfig(format='%(asctime)s->%(name)s@%(levelname)s: %(message)s', filename=sys.stdout, level=logging.INFO)
+logging.basicConfig(format='%(asctime)s->%(name)s@%(levelname)s: %(message)s', level=logging.INFO)
 
 got_signal = False
 disks_by_uuid = "/dev/disk/by-uuid"
