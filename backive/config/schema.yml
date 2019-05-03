@@ -52,6 +52,7 @@ definitions:
                                     enum: [ "local", "remote" ]
                                 script:
                                     type: string
+                                execute: [ "before", "after" ]
                             additionalProperties: false
                     tool:
                         type: object

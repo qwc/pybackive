@@ -27,8 +27,12 @@ class Config:
             if uid == 0:
                 config_file = "/etc/backive.yml"
             else:
-                config_file = os.path.join(os.path.expanduser("~"), ".backive", "backive.yml")
-                pass
+                config_file = os.path.join(
+                    os.path.expanduser("~"),
+                    ".config",
+                    "backive",
+                    "backive.yml"
+                )
 
             with open(config_file, "r") as cfg:
                 self._config = YAML().load(cfg)

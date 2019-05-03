@@ -6,9 +6,11 @@ class Backup:
         self.name = name
         self.config = cfg
 
-    def run(self):
-        pass
+    def get_frequency(self):
+        return self.config.get("frequency", None)
 
-    @classmethod
-    def instance(cls, name, cfg):
-        return Backup(name, cfg)
+    def run(self):
+
+        if self.config.get("scripts", None):
+            pass
+

@@ -46,12 +46,15 @@ class Device
 
 class Tool
 
+class Scheduler
+
 backive_service --> Service : provides startup to
 EventInterface --* Service
 Config --* Service
 Backup --* Service
 Device --* Backup
 Tool --* Backup
+Backup <..> Scheduler: registers,\nasks for next run,\nstores run-data
 
 Config ..> Backup : generates Backup objects
 backive_udev ..> EventInterface : sends data through unix socket

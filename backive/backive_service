@@ -4,11 +4,12 @@
 Service startup script.
 """
 from backive.core.events import EventInterface
+from backive.config.config import Config
 
 
 class Backive:
     def __init__(self):
-        self._config = None
+        self._config = Config()
         self._events = None
 
     def serve(self):
