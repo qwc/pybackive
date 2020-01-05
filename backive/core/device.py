@@ -5,9 +5,13 @@ import backive.config.config as cfg
 class Device:
     disks_by_uuid = "/dev/disk/by-uuid"
 
-    def __init__(self, uuid, config=None):
-        self.uuid = uuid
+    def __init__(self, name, config=None):
+        self.name = name
         self.config = config
+
+    @classmethod
+    def instance(cls, name, config=None):
+        return Device(name, config)
 
     @classmethod
     def get_list(cls):
@@ -16,7 +20,7 @@ class Device:
             return uuids
         return []
 
-    def mount(self):
+    def mount(self, path):
         pass
 
     def unmount(self):

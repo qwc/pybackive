@@ -14,7 +14,10 @@ setup_info = dict(
         license="BSD",
         classifiers=[
             ],
-        scripts=[],
+        scripts=[
+            "backive/backive_service",
+            "backive/backive_udev"
+            ],
         packages=find_packages(),
         setup_requires=[
             "setuptools>=40.4.3",
@@ -30,7 +33,13 @@ setup_info = dict(
             "pytest-pep8>=1.0.6",
             "pylint>=2.1.1",
             "coverage>=4.5.1",
-            ]
+            ],
+        package_data={
+            "backive.config": [
+                    "schema.yml"
+                ]
+            },
+        include_package_data=True
         )
 
 setup(**setup_info)

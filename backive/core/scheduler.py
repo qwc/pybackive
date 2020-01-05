@@ -1,46 +1,57 @@
 import os
 import json
+from datetime import datetime
 
 
-class Singleton(type):
-    _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
-class Scheduler(metaclass=Singleton):
+class Scheduler():
+    __shared_state = dict()
+    __data = dict()
     def __init__(self):
-        self._data = dict()
-        # who are we?
-        uid = os.getuid()
-        if uid == 0:
-            self._data_file = "/var/lib/backive/data.json"
-        else:
-            self._data_file = os.path.join(
+        self.__dict__ = self.__shared_state
+        if not self.__data:
+            # who are we?
+            uid = os.getuid()
+            if uid == 0:
+                self._data_file = "/var/lib/backive/data.json"
+            else:
+                self._data_file = os.path.join(
                     os.path.expanduser("~"),
                     ".config",
                     "backive",
                     "data.json"
                     )
-        if not os.path.exists(os.path.dirname(self._data_file)):
-            os.makedirs(os.path.dirname(self._data_file))
-            self.save()
+            if not os.path.exists(os.path.dirname(self._data_file)):
+                os.makedirs(os.path.dirname(self._data_file))
+                self.save()
 
     def save(self):
         with open(self._data_file, "w") as stream:
-            json.dump(self._data, stream, indent=2)
+            json.dump(self.__data, stream, indent=2)
 
     def load(self):
         with open(self._data_file, "r") as stream:
-            self._data = json.load(stream)
+            self.__data = json.load(stream)
 
     def register_backup(self, name, frequency):
-        pass
+        backups = self.__data.get("backups", dict())
+        if not backups:
+            self.__data["backups"] = backups
+        if (
+            name not in backups.keys() or
+            backups[name] != frequency
+            ):
+            backups[name] = frequency
+        self.save()
 
     def register_run(self, name):
-        pass
+        runs = self.__data.get("runs", dict())
+        if not runs:
+            self.__data["runs"] = runs
+        if name not in runs.keys():
+            runs[name] = [datetime.now().isoformat()]
+        else:
+            runs[name].append(datetime.now().isoformat())
+        self.save()
 
     def should_run(self, name):
         pass

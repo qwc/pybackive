@@ -3,6 +3,7 @@
 """
 Service startup script.
 """
+import asyncio
 from backive.core.events import EventInterface
 from backive.config.config import Config
 
@@ -12,7 +13,13 @@ class Backive:
         self._config = Config()
         self._events = None
 
+    async def callback(self, data=None):
+        print("Callback: {}".format(str(data)))
+
     def serve(self):
+        loop = asyncio.get_event_loop()
+        self._events = EventInterface(self.callback, None, loop)
+        loop.run_forever()
         pass
 
 

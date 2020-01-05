@@ -14,13 +14,13 @@ class EventInterface:
         except OSError:
             pass
         if not loop:
-            loop = asyncio.get_running_loop()
+            loop = asyncio.get_event_loop()
         loop.create_task(asyncio.start_unix_server(self.client_connected, unix_socket_path))
 
     async def client_connected(self, reader, writer):
         print("client_connected")
         data = None
         data = (await reader.read()).decode('utf8')
-        self.event_callback(data)
+        await self.event_callback(data)
 
 

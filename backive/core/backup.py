@@ -6,6 +6,10 @@ class Backup:
         self.name = name
         self.config = cfg
 
+    @classmethod
+    def instance(cls, name, config=None):
+        return Backup(name, config)
+
     def get_frequency(self):
         return self.config.get("frequency", None)
 

@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+setuptools  = "*"
+pytest = "*"
+pytest_runner = "*"
+pytest_cov = "*"
+pytest_pylint = "*"
+pytest-pep8 = "*"
+pylint = "*"
+coverage = "*"
+
+[packages]
+jsonschema = "*"
+"ruamel.yaml" = "*"
+
+[requires]
+python_version = "3.8"
