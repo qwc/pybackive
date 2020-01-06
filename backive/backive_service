@@ -7,16 +7,16 @@ import sys
 import os
 import asyncio
 import logging
+import json
 from backive.core.events import EventInterface
+from backive.core.scheduler import Scheduler
 from backive.config.config import Config
 
 
 rootlogger = logging.getLogger()
 rootlogger.setLevel(logging.DEBUG)
 consoleHandler = logging.StreamHandler(sys.stdout)
-fileHandler = logging.FileHandler("/var/log/backive/backive.log")
-if not os.path.exists("/var/log/backive"):
-    os.makedirs("/var/log/backive")
+fileHandler = logging.FileHandler("backive.log")
 rootlogger.addHandler(consoleHandler)
 rootlogger.addHandler(fileHandler)
 
@@ -29,7 +29,14 @@ class Backive:
         self._events = None
 
     async def callback(self, data=None):
-        print("Callback: {}".format(str(data)))
+        data_dict = json.loads(data)
+        uuid = data_dict.get("ID_FS_UUID", None)
+        print("UUID: %s" % uuid)
+        if uuid:
+            backups = self._config.get_backups_by_device(uuid)
+            for backup in backups:
+                backup.run()
+
 
     def serve(self):
         loop = asyncio.get_event_loop()

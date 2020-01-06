@@ -57,7 +57,21 @@ class Scheduler():
         self.save()
 
     def should_run(self, name):
-        pass
+        runs = self.__data.get("runs", dict())
+        if name not in runs:
+            return True
+        if name in runs:
+            backups = self.__data.get("backups", dict())
+            if name in backups:
+                frequency = backups[name]
+            last_ts = runs[name][-1]
+            now = datetime.now()
+            last = datetime.fromisoformat(last_ts)
+            diff = now - last
+            days = diff.days
+            if days > frequency and days >= 1:
+                return True
+        return False
 
     def get_overtimed(self):
         return list()

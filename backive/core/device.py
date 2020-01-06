@@ -1,4 +1,5 @@
 import os
+import logging
 import backive.config.config as cfg
 
 
@@ -11,6 +12,7 @@ class Device:
 
     @classmethod
     def instance(cls, name, config=None):
+        logging.debug("Device instance created (%s)", name)
         return Device(name, config)
 
     @classmethod

@@ -45,13 +45,11 @@ definitions:
                         type: string
                         # target device name
                     frequency:
-                        type: string
-                        # in numbers? days? weeks?
-                        # or just strings like
+                        # JUST DAYS!
+                        type: integer
+                        # other possibilities in the future
                         # weekly, biweekly, monthly, yearly
                         # 7d, 2w, 1m, 1y (this needs parser)
-                        #
-                        # No frequency means no reminder and the backup is always started when the device is available, but not more than once a day!
                     script:
                         type: string
                         # MVP just executes a script, nothing else
@@ -73,6 +71,7 @@ definitions:
                     - to
                     - target_device
                     - script
+                    - frequency
                 additionalProperties: false
     preferences_section:
         type: object

@@ -4,12 +4,20 @@
 Callable script for udev rules.
 """
 import socket
-import sys
+import os
+import json
 
-unix_socket = "/tmp/backive/backive.sock"
 
-sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-sock.connect(unix_socket)
-if len(sys.argv) > 1:
-    sock.send(sys.argv[1].encode())
-sock.close()
+with open("/tmp/backive/udev.log", "a") as stream:
+    stream.write("udev run...")
+    for k, v in os.environ.items():
+        stream.write("{k}: {v}\n".format(k=k, v=v))
+
+    unix_socket = "/tmp/backive/backive.sock"
+    try:
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        sock.connect(unix_socket)
+        sock.send(json.dumps(dict(os.environ)).encode())
+        sock.close()
+    except Exception as e:
+        stream.write("Exception occurred: {}".format(str(e)))
