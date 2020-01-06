@@ -3,9 +3,24 @@
 """
 Service startup script.
 """
+import sys
+import os
 import asyncio
+import logging
 from backive.core.events import EventInterface
 from backive.config.config import Config
+
+
+rootlogger = logging.getLogger()
+rootlogger.setLevel(logging.DEBUG)
+consoleHandler = logging.StreamHandler(sys.stdout)
+fileHandler = logging.FileHandler("/var/log/backive/backive.log")
+if not os.path.exists("/var/log/backive"):
+    os.makedirs("/var/log/backive")
+rootlogger.addHandler(consoleHandler)
+rootlogger.addHandler(fileHandler)
+
+logging.info("Backive starting.")
 
 
 class Backive:
@@ -22,7 +37,17 @@ class Backive:
         loop.run_forever()
         pass
 
+    def __del__(self):
+        del self._events
+
 
 if __name__ == "__main__":
-    backive = Backive()
-    backive.serve()
+    backive = None
+    try:
+        backive = Backive()
+        backive.serve()
+    except Exception as e:
+        raise e
+    finally:
+        logging.info("Backive exited.")
+        del backive

@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 from datetime import datetime
 
 
@@ -12,8 +13,10 @@ class Scheduler():
             # who are we?
             uid = os.getuid()
             if uid == 0:
+                logging.info("Executing as root.")
                 self._data_file = "/var/lib/backive/data.json"
             else:
+                logging.info("Executing as user.")
                 self._data_file = os.path.join(
                     os.path.expanduser("~"),
                     ".config",

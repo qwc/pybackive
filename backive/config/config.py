@@ -1,3 +1,4 @@
+import logging
 import os
 import pwd
 from ruamel.yaml import YAML
@@ -9,23 +10,25 @@ from backive.core.device import Device
 
 
 class Config:
-    __shared_state = dict
+    __shared_state = dict()
+    _config = dict()
 
     def __init__(self):
         self.__dict__ = self.__shared_state
-        self._config = dict()
-        self._schema = dict()
-        self._backups = list()
-        self._devices = list()
-        file_path = os.path.realpath(__file__)
-        schema_path = os.path.join(
-                os.path.dirname(
-                    file_path
-                ),
-                "schema.yml"
-            )
-        with open(schema_path, "r") as stream:
-            self._schema = YAML().load(stream)
+        if not self._config:
+            logging.info("Loading configuration...")
+            self._schema = dict()
+            self._backups = list()
+            self._devices = list()
+            file_path = os.path.realpath(__file__)
+            schema_path = os.path.join(
+                    os.path.dirname(
+                        file_path
+                    ),
+                    "schema.yml"
+                )
+            with open(schema_path, "r") as stream:
+                self._schema = YAML().load(stream)
 
     def find_config(self):
         # who are we?
