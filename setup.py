@@ -35,8 +35,8 @@ setup_info = dict(
             "coverage>=4.5.1",
             ],
         package_data={
-            "backive.config": [
-                    "schema.yml"
+            "backive": [
+                    "config/schema.yml"
                 ]
             },
         include_package_data=True

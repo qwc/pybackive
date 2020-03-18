@@ -12,6 +12,7 @@ pytest_pylint = "*"
 pytest-pep8 = "*"
 pylint = "*"
 coverage = "*"
+pipenv-setup = "*"
 
 [packages]
 jsonschema = "*"

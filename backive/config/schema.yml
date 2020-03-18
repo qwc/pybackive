@@ -1,6 +1,7 @@
 ### backive config schema
 #
 #
+
 definitions:
     device_section:
         type: object
@@ -67,8 +68,6 @@ definitions:
                     # tool:
                     #     type: object
                 required:
-                    - from
-                    - to
                     - target_device
                     - script
                     - frequency

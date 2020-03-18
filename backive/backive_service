@@ -13,12 +13,13 @@ from backive.core.scheduler import Scheduler
 from backive.config.config import Config
 
 
+logging.basicConfig(level=logging.DEBUG)
 rootlogger = logging.getLogger()
 rootlogger.setLevel(logging.DEBUG)
 consoleHandler = logging.StreamHandler(sys.stdout)
 fileHandler = logging.FileHandler("backive.log")
-rootlogger.addHandler(consoleHandler)
 rootlogger.addHandler(fileHandler)
+#rootlogger.addHandler(consoleHandler)
 
 logging.info("Backive starting.")
 
@@ -31,11 +32,15 @@ class Backive:
     async def callback(self, data=None):
         data_dict = json.loads(data)
         uuid = data_dict.get("ID_FS_UUID", None)
-        print("UUID: %s" % uuid)
-        if uuid:
-            backups = self._config.get_backups_by_device(uuid)
+        logging.info("UUID: %s", uuid)
+        logging.debug(json.dumps(data_dict, indent=4))
+
+        if uuid and data_dict.get("ACTION") == "add":
+            backups = await self._config.get_backups_by_device(uuid)
             for backup in backups:
-                backup.run()
+                logging.info("Running backup '%s'", backup.name)
+                result = await backup.run()
+                logging.debug("Result: %s", str(result))
 
 
     def serve(self):
