@@ -1,5 +1,6 @@
 import os
 import logging
+import asyncio
 import backive.config.config as cfg
 
 
@@ -9,6 +10,7 @@ class Device:
     def __init__(self, name, config=None):
         self.name = name
         self.config = config
+        self._mount_dir = None
 
     @classmethod
     def instance(cls, name, config=None):
@@ -22,9 +24,36 @@ class Device:
             return uuids
         return []
 
-    def mount(self, path):
-        pass
+    async def mount(self, path):
+        self._mount_dir = os.path.join(path, self.config.get("mountname"))
+        dev_path = os.path.join(self.disks_by_uuid, self.config.get("uuid"))
+        logging.debug("dev: %s ;; mount: %s", dev_path, self._mount_dir)
+        # TODO: use mkdir as indicator for correct access rights (when backive
+        # is run as user!)
+        proc = await asyncio.create_subprocess_shell(
+            """mkdir -p {mountpoint}
+sudo mount -v -o users {dev_path} {mountpoint}""".format(
+                mountpoint=self._mount_dir,
+                dev_path=dev_path
+            ),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await proc.communicate()
+        logging.debug("stdout: %s", stdout)
+        # TODO: Also add a touch operation in the target mount if the correct
+        # access rights are given! (when backive is run as user)
+        return True # on success, False on failure
 
-    def unmount(self):
-        pass
-
+    async def unmount(self):
+        if not self._mount_dir:
+            return
+        proc = await asyncio.create_subprocess_shell(
+            """sync
+sudo umount -v %s
+""" % self._mount_dir,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await proc.communicate()
+        logging.debug("stdout: %s", stdout)

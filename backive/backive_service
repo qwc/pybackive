@@ -10,6 +10,7 @@ import logging
 import json
 from backive.core.events import EventInterface
 from backive.core.scheduler import Scheduler
+from backive.core.backup import Backup
 from backive.config.config import Config
 
 
@@ -26,22 +27,44 @@ logging.info("Backive starting.")
 
 class Backive:
     def __init__(self):
+        self._scheduler = Scheduler()
         self._config = Config()
         self._events = None
+        self.initialize_scheduler()
+
+    def initialize_scheduler(self):
+        backups = self._config.get_backups()
+        for backup in backups:
+            self._scheduler.register_backup(backup.name, backup.get_frequency())
 
     async def callback(self, data=None):
         data_dict = json.loads(data)
         uuid = data_dict.get("ID_FS_UUID", None)
         logging.info("UUID: %s", uuid)
-        logging.debug(json.dumps(data_dict, indent=4))
-
         if uuid and data_dict.get("ACTION") == "add":
+            logging.debug(json.dumps(data_dict, indent=4))
             backups = await self._config.get_backups_by_device(uuid)
-            for backup in backups:
-                logging.info("Running backup '%s'", backup.name)
-                result = await backup.run()
-                logging.debug("Result: %s", str(result))
-
+            device = await self._config.get_uuid_device(uuid)
+            prefs = await self._config.get_preferences()
+            if backups:
+                logging.info("Mounting device '%s'", uuid)
+                mount_available = await device.mount(prefs.get("mount_root"))
+                if mount_available:
+                    for backup in backups:
+                        if await self._scheduler.should_run(backup.name):
+                            logging.info("Running backup '%s'", backup.name)
+                            result = await backup.run()
+                            logging.debug("Result: %s", str(result))
+                            await self._scheduler.register_run(backup.name)
+                        else:
+                            logging.info(
+                                "Backup '%s' next run interval has not been reached.",
+                                backup.name
+                            )
+                    logging.info("Unmounting device '%s'", uuid)
+                    await device.unmount()
+                else:
+                    logging.error("Device %s could not be mounted...", uuid)
 
     def serve(self):
         loop = asyncio.get_event_loop()

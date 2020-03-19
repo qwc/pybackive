@@ -26,6 +26,8 @@ class Scheduler():
             if not os.path.exists(os.path.dirname(self._data_file)):
                 os.makedirs(os.path.dirname(self._data_file))
                 self.save()
+            else:
+                self.load()
 
     def save(self):
         with open(self._data_file, "w") as stream:
@@ -36,17 +38,19 @@ class Scheduler():
             self.__data = json.load(stream)
 
     def register_backup(self, name, frequency):
+        logging.debug("Registering %s, freq %s in Scheduler", name, frequency)
         backups = self.__data.get("backups", dict())
         if not backups:
             self.__data["backups"] = backups
         if (
             name not in backups.keys() or
             backups[name] != frequency
-            ):
+        ):
             backups[name] = frequency
         self.save()
 
-    def register_run(self, name):
+    async def register_run(self, name):
+        logging.info("Registered run of backup '%s'", name)
         runs = self.__data.get("runs", dict())
         if not runs:
             self.__data["runs"] = runs
@@ -56,22 +60,42 @@ class Scheduler():
             runs[name].append(datetime.now().isoformat())
         self.save()
 
-    def should_run(self, name):
+    async def should_run(self, name):
+        logging.debug("Checking if %s may run...", name)
         runs = self.__data.get("runs", dict())
         if name not in runs:
+            logging.debug("Not registered, so YES")
             return True
+        frequency = 0
         if name in runs:
+            logging.debug("Registered, checking...")
             backups = self.__data.get("backups", dict())
             if name in backups:
+                logging.debug("retrieving frequency")
                 frequency = backups[name]
             last_ts = runs[name][-1]
             now = datetime.now()
             last = datetime.fromisoformat(last_ts)
             diff = now - last
             days = diff.days
-            if days > frequency and days >= 1:
+            if days >= frequency and days >= 1 or frequency == 0:
+                logging.debug("YES, should run.")
                 return True
+        logging.debug("No should not run.")
         return False
 
     def get_overtimed(self):
-        return list()
+        overtime = list()
+        now = datetime.now()
+        runs = self.__data.get("runs", dict())
+        for bkp_name, freq in self.__data.get("backups").items():
+            if bkp_name not in runs.keys():
+                overtime.append(bkp_name)
+            else:
+                last_ts = runs[bkp_name][-1]
+                last = datetime.fromisoformat(last_ts)
+                diff = now - last
+                days = diff.days
+                if days > freq and freq != 0:
+                    overtime.append(bkp_name)
+        return overtime
