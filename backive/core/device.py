@@ -31,16 +31,18 @@ class Device:
         # TODO: use mkdir as indicator for correct access rights (when backive
         # is run as user!)
         proc = await asyncio.create_subprocess_shell(
-            """mkdir -p {mountpoint}
-sudo mount -v -o users {dev_path} {mountpoint}""".format(
+            """set -x; mkdir -p {mountpoint}
+mount -v -o users,noexec {dev_path} {mountpoint}""".format(
                 mountpoint=self._mount_dir,
-                dev_path=dev_path
+                dev_path=dev_path,
             ),
+            shell=True,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
         stdout, stderr = await proc.communicate()
         logging.debug("stdout: %s", stdout)
+        logging.debug("stderr: %s", stderr)
         # TODO: Also add a touch operation in the target mount if the correct
         # access rights are given! (when backive is run as user)
         return True # on success, False on failure

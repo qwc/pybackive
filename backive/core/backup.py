@@ -44,10 +44,15 @@ class Backup:
             stdout, stderr = await proc.communicate()
             logging.debug("stdout: %s", stdout)
             logging.debug("stderr: %s", stderr.decode())
+            user = self.config.get("user")
             proc = await asyncio.create_subprocess_shell(
+#                "set -x; chown -R {} ${{BACKIVE_MOUNT}}/${{BACKIVE_TO}};".format(user) +
+#                "sudo -E -u {} sh -c '".format(user) + 
                 self.config.get("script"),
+#                "'",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
+                shell=True,
                 env=backup_env
             )
             stdout, stderr = await proc.communicate()
