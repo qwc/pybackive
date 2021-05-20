@@ -30,10 +30,15 @@ class Scheduler():
                 self.load()
 
     def save(self):
+        logging.debug("Scheduler.save()")
         with open(self._data_file, "w") as stream:
             json.dump(self.__data, stream, indent=2)
 
     def load(self):
+        logging.debug("Scheduler.load()")
+        if not os.path.exists(os.path.dirname(self._data_file)):
+            os.makedirs(os.path.dirname(self._data_file))
+            self.save()
         with open(self._data_file, "r") as stream:
             self.__data = json.load(stream)
 

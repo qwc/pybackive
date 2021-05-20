@@ -57,7 +57,7 @@ class Config:
                 )
 
             with open(config_file, "r") as cfg:
-                self._config = YAML().load(cfg)
+                self._config = YAML.safe_load(cfg)
             logging.debug(
                 "Found config: %s\n%s",
                 config_file,

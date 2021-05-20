@@ -54,7 +54,7 @@ class Backive:
                         if await self._scheduler.should_run(backup.name):
                             logging.info("Running backup '%s'", backup.name)
                             result = await backup.run()
-                            logging.debug("Result: %s", str(result))
+                            logging.debug("Result: %s", result.decode())
                             await self._scheduler.register_run(backup.name)
                         else:
                             logging.info(
@@ -73,6 +73,7 @@ class Backive:
         pass
 
     def __del__(self):
+        self._scheduler.save()
         del self._events
 
 

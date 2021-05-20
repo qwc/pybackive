@@ -41,8 +41,8 @@ mount -v -o users,noexec {dev_path} {mountpoint}""".format(
             stderr=asyncio.subprocess.PIPE,
         )
         stdout, stderr = await proc.communicate()
-        logging.debug("stdout: %s", stdout)
-        logging.debug("stderr: %s", stderr)
+        logging.debug("stdout: %s", stdout.decode())
+        logging.debug("stderr: %s", stderr.decode())
         # TODO: Also add a touch operation in the target mount if the correct
         # access rights are given! (when backive is run as user)
         return True # on success, False on failure
@@ -58,4 +58,4 @@ sudo umount -v %s
             stderr=asyncio.subprocess.PIPE,
         )
         stdout, stderr = await proc.communicate()
-        logging.debug("stdout: %s", stdout)
+        logging.debug("stdout: %s", stdout.decode())

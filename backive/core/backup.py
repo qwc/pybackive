@@ -42,7 +42,7 @@ class Backup:
                 stderr=asyncio.subprocess.PIPE,
             )
             stdout, stderr = await proc.communicate()
-            logging.debug("stdout: %s", stdout)
+            logging.debug("stdout: %s", stdout.decode())
             logging.debug("stderr: %s", stderr.decode())
             user = self.config.get("user")
             proc = await asyncio.create_subprocess_shell(
