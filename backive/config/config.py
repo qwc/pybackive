@@ -1,7 +1,7 @@
 import os
 import pwd
 import json
-from ruamel.yaml import YAML
+import yaml as YAML
 import logging
 import jsonschema
 
@@ -20,14 +20,16 @@ class Config:
             self._backups = list()
             self._devices = dict()
             file_path = os.path.realpath(__file__)
+            logging.debug("config file_path: " + file_path)
             schema_path = os.path.join(
                     os.path.dirname(
                         file_path
                     ),
                     "schema.yml"
                 )
+            logging.debug("schema path: " + schema_path)
             with open(schema_path, "r") as stream:
-                self._schema = YAML().load(stream)
+                self._schema = YAML.safe_load(stream)
             self.find_config()
 
     def find_config(self):
