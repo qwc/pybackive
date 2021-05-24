@@ -43,5 +43,3 @@ setup_info = dict(
         )
 
 setup(**setup_info)
-
-

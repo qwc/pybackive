@@ -5,6 +5,3 @@ from backive.core.tool import AVAILABLE_TOOLS, register_tool
 class Rsync:
     def __init__(self, options):
         pass
-
-
-
