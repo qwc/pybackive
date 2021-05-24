@@ -4,6 +4,9 @@ import os
 AVAILABLE_TOOLS = {}
 
 def register_tool(name):
+    """
+    TODO
+    """
     def decorator(Cls):
         AVAILABLE_TOOLS.update({name: Cls})
     return decorator
