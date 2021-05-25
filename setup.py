@@ -1,4 +1,3 @@
-import setuptools
 from setuptools import setup, find_packages
 
 
@@ -43,5 +42,3 @@ setup_info = dict(
         )
 
 setup(**setup_info)
-
-

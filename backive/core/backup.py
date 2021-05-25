@@ -47,7 +47,7 @@ class Backup:
             user = self.config.get("user")
             proc = await asyncio.create_subprocess_shell(
 #                "set -x; chown -R {} ${{BACKIVE_MOUNT}}/${{BACKIVE_TO}};".format(user) +
-#                "sudo -E -u {} sh -c '".format(user) + 
+#                "sudo -E -u {} sh -c '".format(user) +
                 self.config.get("script"),
 #                "'",
                 stdout=asyncio.subprocess.PIPE,
