@@ -54,7 +54,7 @@ class Backive:
                         if await self._scheduler.should_run(backup.name):
                             logging.info("Running backup '%s'", backup.name)
                             result = await backup.run()
-                            logging.debug("Result: %s", result.decode())
+                            logging.debug("Result: %s", result)
                             await self._scheduler.register_run(backup.name)
                         else:
                             logging.info(

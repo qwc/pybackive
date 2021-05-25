@@ -17,6 +17,28 @@ class Backup:
 
     def get_frequency(self):
         return self.config.get("frequency", None)
+    
+    async def _read_stream(self, stream, cb):
+        while True:
+            line = await stream.readline()
+            if line:
+                cb(line)
+            else:
+                break
+    
+    async def stream_subprocess(self, cmd, outcb, errcb):
+        proc = await asyncio.create_subprocess_shell(
+            cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        await asyncio.wait([
+            self._read_stream(proc.stdout, outcb),
+            self._read_stream(proc.stderr, errcb)
+        ])
+
+        return await proc.wait()
 
     async def run(self):
         logging.debug("Running backup %s", self.name)
@@ -31,31 +53,40 @@ class Backup:
                     self.config.get("target_device")
                 )).config.get("mountname")
             )
-            proc = await asyncio.create_subprocess_shell(
-                """mkdir -p {}""".format(
-                    os.path.join(
-                        backup_env["BACKIVE_MOUNT"],
-                        backup_env["BACKIVE_TO"]
-                    )
-                ),
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
+            backup_env["BACKIVE_TARGET_DIR"] = os.path.join(
+                    backup_env["BACKIVE_MOUNT"],
+                    backup_env["BACKIVE_TO"]
+                )
+            proc = await self.stream_subprocess(
+                """mkdir -p {}""".format( backup_env["BACKIVE_TARGET_DIR"]),
+                lambda x: logging.debug("STDOUT: %s", x),
+                lambda x: logging.debug("STDERR: %s", x),
             )
-            stdout, stderr = await proc.communicate()
-            logging.debug("stdout: %s", stdout.decode())
-            logging.debug("stderr: %s", stderr.decode())
+#            proc = await asyncio.create_subprocess_shell(
+#                """mkdir -p {}""".format( backup_env["BACKIVE_TARGET_DIR"]
+#                ),
+#                stdout=asyncio.subprocess.PIPE,
+#                stderr=asyncio.subprocess.PIPE,
+#            )
+#            stdout, stderr = await proc.communicate()
+#            logging.debug("stdout: %s", stdout.decode())
+#            logging.debug("stderr: %s", stderr.decode())
             user = self.config.get("user")
-            proc = await asyncio.create_subprocess_shell(
+#            proc = await asyncio.create_subprocess_shell(
+            proc = await self.stream_subprocess(
 #                "set -x; chown -R {} ${{BACKIVE_MOUNT}}/${{BACKIVE_TO}};".format(user) +
 #                "sudo -E -u {} sh -c '".format(user) +
                 self.config.get("script"),
-#                "'",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                shell=True,
-                env=backup_env
+                lambda x: logging.debug("STDOUT: %s", x),
+                lambda x: logging.debug("STDERR: %s", x),
             )
-            stdout, stderr = await proc.communicate()
-            logging.debug("stdout: %s", stdout.decode())
-            logging.debug("stderr: %s", stderr.decode())
-            return stdout
+#                "'",
+#                stdout=asyncio.subprocess.PIPE,
+#                stderr=asyncio.subprocess.PIPE,
+#                shell=True,
+#                env=backup_env
+#            )
+#            stdout, stderr = await proc.communicate()
+#            logging.debug("stdout: %s", stdout.decode())
+#            logging.debug("stderr: %s", stderr.decode())
+            return "done"
