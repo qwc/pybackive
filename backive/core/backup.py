@@ -26,11 +26,12 @@ class Backup:
             else:
                 break
     
-    async def stream_subprocess(self, cmd, outcb, errcb):
+    async def stream_subprocess(self, cmd, environ, outcb, errcb):
         proc = await asyncio.create_subprocess_shell(
             cmd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            env=environ
         )
 
         await asyncio.wait([
@@ -54,11 +55,15 @@ class Backup:
                 )).config.get("mountname")
             )
             backup_env["BACKIVE_TARGET_DIR"] = os.path.join(
-                    backup_env["BACKIVE_MOUNT"],
-                    backup_env["BACKIVE_TO"]
-                )
+                (await Config().get_preferences()).get("mount_root"),
+                (await Config().get_device(
+                    self.config.get("target_device")
+                )).config.get("mountname"),
+                self.config.get("to")
+            )
             proc = await self.stream_subprocess(
                 """mkdir -p {}""".format( backup_env["BACKIVE_TARGET_DIR"]),
+                backup_env,
                 lambda x: logging.debug("STDOUT: %s", x),
                 lambda x: logging.debug("STDERR: %s", x),
             )
@@ -77,6 +82,7 @@ class Backup:
 #                "set -x; chown -R {} ${{BACKIVE_MOUNT}}/${{BACKIVE_TO}};".format(user) +
 #                "sudo -E -u {} sh -c '".format(user) +
                 self.config.get("script"),
+                backup_env,
                 lambda x: logging.debug("STDOUT: %s", x),
                 lambda x: logging.debug("STDERR: %s", x),
             )
