@@ -1,4 +1,6 @@
-# backive
+# pybackive
+
+(discontinued in favor of the go implementation, see qwc/backive. Therefore archived.)
 
 The name comes from the combination of backup and archive - silly, I know.
 
